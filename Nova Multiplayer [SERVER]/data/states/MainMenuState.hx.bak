@@ -1,0 +1,68 @@
+
+import openfl.net.URLLoader;
+import openfl.net.URLRequest;
+
+var address = {
+    host: "hand-google.gl.at.ply.gg",//"basic-fabrics.gl.at.ply.gg",
+    port: 11325
+}
+
+var you = "player1";
+var them = "player2";
+
+var serverData = [
+    "player1" => [
+        "up" => false
+        "down" => false,
+    ],
+    "player2" => [
+        "up" => false
+        "down" => false,
+    ]
+];
+
+var loader;
+
+function onCreate(e) {
+    super.onCreate(e);
+    setServerData([
+    "player1" => [
+        "up" => false
+        "down" => false,
+    ],
+    "player2" => [
+        "up" => false
+        "down" => false,
+    ]
+]);
+}
+
+
+function update() {
+    serverData.get(you).set("down", FlxG.keys.pressed.DOWN);
+    serverData.get(you).set("up", FlxG.keys.pressed.UP);
+    if (serverData != null && (FlxG.keys.justPressed.DOWN || FlxG.keys.justPressed.UP || FlxG.keys.justReleased.DOWN || FlxG.keys.justReleased.UP)) {
+        setServerData(serverData);
+    }
+    getServerData();
+    trace(serverData);
+}
+
+function setServerData(data) {
+    loader = new URLLoader();
+    var request = new URLRequest("http://" + address.host + ":" + address.port);
+    request.method = "POST";
+    request.data = data;
+    loader.load(request);
+}
+
+function getServerData() {
+    loader = new URLLoader();
+    loader.addEventListener("complete", ()->{
+        if (loader.data != null) {
+            serverData = loader.data;
+        }
+    });
+    var request = new URLRequest("http://" + address.host + ":" + address.port);
+    loader.load(request);
+}
