@@ -5,10 +5,12 @@ import haxe.io.Bytes;
 
 var address = {
     host: "0.0.0.0",//"basic-fabrics.gl.at.ply.gg",
-    port: 1232
+    port: 11325
 }
 
 var serverSocket;
+
+var running = true;
 
 function create() {
     serverSocket = new Socket();
@@ -18,20 +20,24 @@ function create() {
     try {
         // Bind the server socket to a specific port
 
-        while (true) { // Loop to accept multiple clients
+        while (running) { // Loop to accept multiple clients
             var clientSocket = serverSocket.accept();
-            trace("Client connected from: " + clientSocket.peer().host.toString() + ":" + clientSocket.peer().port);
-
+            // trace("Client connected from: " + clientSocket.peer().host.toString() + ":" + clientSocket.peer().port);
             // Receive data from the client
             var receivedData = clientSocket.input.readAll();
-            trace("Received from client: " + receivedData.toString());
+            if (receivedData.toString() == "up") {
+                FlxG.state.changeItem(-1);
+            } else if (receivedData.toString() == "down") {
+                FlxG.state.changeItem(1);
+            }
+            /* trace("Received from client: " + receivedData.toString());
 
             // Send data back to the client
             var response = "Server received: " + receivedData.toString();
             clientSocket.output.writeString(response);
             clientSocket.output.flush();
-
-            clientSocket.close();
+ */
+            // clientSocket.close();
         }
     } catch (e:Dynamic) {
         trace("Server error: " + e);
@@ -44,4 +50,9 @@ function create() {
 }
 
 function update() {
+}
+
+function destory() {
+    running = false;
+    serverSocket.close();
 }

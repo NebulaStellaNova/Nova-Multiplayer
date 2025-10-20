@@ -10,3 +10,7 @@ function postCreate() {
 function update() {
     serverScript.call("update");
 }
+
+function destory() {
+    serverScript.call("destory");
+}

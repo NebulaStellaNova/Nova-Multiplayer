@@ -3,27 +3,45 @@ import sys.net.Host;
 import haxe.io.Bytes;
 
 var address = {
-    host: "localhost",//"basic-fabrics.gl.at.ply.gg",
-    port: 1232
+    host: "hand-google.gl.at.ply.gg",//"basic-fabrics.gl.at.ply.gg",
+    port: 11325
 }
 
-var socket = new Socket();
+var socket;
+
+var running = true;
 
 function create() {
     socket = new Socket();
-    // Connect to a server at a specific host and port
     socket.connect(new Host(address.host), address.port);
-    trace("Connected to server.");
-
-    // Send data to the server
-    var message = "Hello from HaxeFlixel!";
-    socket.output.writeString(message);
+    socket.output.writeString("false");
     socket.output.flush();
+    socket.close();
+    
+    var serverSocket = Socket();
+    serverSocket.connect(new Host(address.host), address.port);
+    while (running) {
+        serverData = serverSocket.input.readAll();
+        if (serverData != null) {
+            trace(serverData);
+        }
+    }
 
-    // Receive data from the server (blocking call, consider threads for non-blocking)
-    var receivedData = socket.input.readAll();
-    trace("Received from server: " + receivedData.toString());
+}
 
+function update(k) {
+    var message = FlxG.keys.justPressed.I ? "up" : FlxG.keys.justPressed.K ? "down" : "none";
+    if (FlxG.keys.justPressed.I || FlxG.keys.justPressed.K || FlxG.keys.justReleased.I || FlxG.keys.justReleased.K) {
+        socket = new Socket();
+        socket.connect(new Host(address.host), address.port);
+        // socket.setFastSend(true);
+        socket.output.writeString(message);
+        socket.output.flush();
+        socket.close();
+    }
+}
 
+function destory() {
+    running = false;
     socket.close();
 }
